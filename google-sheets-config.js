@@ -1,1 +1,1 @@
-window.DTR_GAS_URL = "https://script.google.com/macros/s/AKfycbxkxpdAuVN4GmIGSIeVlcioATNzh5d4HOY2Y76wwa9boReGimxVUk-biq_3-Kz50KIZ2Q/exec";
+window.DTR_GAS_URL = "https://script.google.com/macros/s/AKfycbxl_VYm7ZZlT2XTjcLIU_-EcU3kSRVw05exrXOr6Be9jV5AeWA-ZWTQsSn4DJuo1jopHQ/exec";
