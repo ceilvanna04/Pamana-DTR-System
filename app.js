@@ -62,7 +62,7 @@ function employeePage() {
     return `<section class="hero"><div class="muted">Daily attendance</div><h1>Daily Time Record</h1><p class="muted">Enter your employee ID to continue.</p></section>
       <section class="card kiosk">
         ${apiNotConfigured()}
-        <div class="field"><label>EMPLOYEE ID</label><input id="employeeId" placeholder="e.g. PMPI-2026-0003" autocomplete="off" onkeydown="if(event.key==='Enter')lookupEmployee()"></div>
+        <div class="field"><label>EMPLOYEE ID</label><input id="employeeId" placeholder="e.g. PMPI-XXXX-XXXX" autocomplete="off" onkeydown="if(event.key==='Enter')lookupEmployee()"></div>
         <div id="employeeError" class="status error" style="display:none"></div>
         <div class="actions"><button class="btn primary" onclick="lookupEmployee()">Continue</button></div>
       </section>`;
