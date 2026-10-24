@@ -18,7 +18,7 @@ const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, char => ({
 
 function render() {
   $("#app").innerHTML = `<div class="shell">
-    <header class="topbar"><div class="brand">DTR System</div><nav class="nav">
+    <header class="topbar"><div class="brand">Pamana Media & Publishing Inc.</div><nav class="nav">
       <button class="${state.page === "employee" ? "active" : ""}" onclick="setPage('employee')">Employee</button>
       <button class="${state.page === "admin" ? "active" : ""}" onclick="setPage('admin')">Admin</button>
     </nav></header>
