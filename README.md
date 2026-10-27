@@ -1,26 +1,35 @@
-# Pamana DTR System
+# DTR Web App
 
-The **Pamana DTR System** is a lightweight, web-based Daily Time Record (DTR) application designed for seamless attendance tracking. Hosted via GitHub Pages, it leverages a Google Apps Script backend to connect directly with a Google Sheet for centralized attendance logs and a secure, private Google Drive folder for time-in and time-out verification selfies.
+A Daily Time Record app hosted on GitHub Pages. A Google Apps Script web app connects it to a Google Sheet for shared attendance and a private Google Drive folder for Time In and Time Out selfies.
 
-## Key Features
+## Google Sheets and Drive setup
 
-* **Simple Employee Experience:** Employees access a clean interface via GitHub Pages where they log attendance quickly using their employee ID.
-* **Webcam Verification:** The system prompts for a live webcam photo during both **Time In** and **Time Out** to capture visual confirmation for every attendance log.
-* **Centralized Google Sheets Backend:** Attendance records—including employee details, timestamps, and private Drive file references—are automatically synced and organized in a Google Sheet.
-* **Secure Admin Dashboard:** Administrators have a dedicated tab protected by a secure password stored safely in Apps Script properties. The admin view allows authorized personnel to review attendance logs alongside corresponding employee selfies fetched securely from Google Drive.
+1. Create a Google Sheet in the Google account that should own the attendance data and selfie files.
+2. In the Sheet, select **Extensions → Apps Script**. Replace the editor contents with [`Code.gs`](./Code.gs) and save.
+3. In the Apps Script editor, select and run `setupDtr`. Approve the requested Google Sheets and Drive permissions. This creates the `Employees` and `Attendance` tabs, seeds the current employee list, and creates a private Drive folder for selfies.
+4. Add, edit, or remove employees in the Sheet's **Employees** tab. Keep the column headings and order unchanged: `employee_id`, `name`, `department`, `position`.
+5. Select and run `setDtrAdminPassword` from Apps Script. Choose a strong password of at least 12 characters. It is saved in Apps Script properties, not in this GitHub repository.
+6. In Apps Script, select **Deploy → New deployment → Web app**. Set **Execute as** to your account, and **Who has access** to **Anyone**. Deploy and copy the `/exec` web-app URL.
+7. Paste the deployed URL into [`google-sheets-config.js`](./google-sheets-config.js):
 
-## Architecture & Data Storage
+   ```js
+   window.DTR_GAS_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+   ```
 
-* **Attendance Logs:** Stored in a structured Google Sheet containing employee identification, dates, time-in/time-out timestamps, and linked Drive file IDs.
-* **Selfie Management:** Photos are stored as private files within a designated Google Drive folder rather than bloating the spreadsheet cells. The admin dashboard dynamically fetches these images upon secure sign-in.
-* **Time Zones:** All timestamps adhere strictly to the time zone configured within the underlying Google Apps Script project settings.
+8. Commit the app to GitHub and enable GitHub Pages. Open the GitHub Pages URL on employee and admin devices. Employees enter their employee ID; the admin opens the **Admin** tab and enters the password configured in step 5.
 
-## Security and Privacy Limitations
+The Sheet stores the employee, date, time-in/time-out, and private Drive file IDs. Times remain stored as 24-hour `HH:mm:ss` values; the admin dashboard displays them as 12-hour times with AM/PM and calculates elapsed time in the browser. A record without Time Out is shown as **Ongoing**. The admin employee directory shows every employee's attendance-day, completed-day, ongoing-day, and total-completed-time summary; admins can also open an employee's full attendance history and upload/replace their default profile picture. Employee profile-photo IDs are stored in a separate `Employee Photos` tab, while the actual images stay in the private Drive folder. `setupDtr()` creates that tab; if you already ran setup before this feature was added, the app creates the tab the first time a profile picture or employee lookup is requested. These additions do not change attendance columns or existing attendance data. Attendance dates and times use the Apps Script project's time zone; set the correct time zone in the Apps Script project settings.
 
-* **Identifier vs. Secret:** Employee sign-in relies on an employee ID number rather than a password. Because an ID is an identifier rather than a strict secret, anyone with knowledge of an ID can technically submit an entry. The captured selfie acts as an administrative review tool rather than a biometric face-recognition mechanism.
-* **Public Endpoint:** Because GitHub Pages communicates with the Apps Script web app without requiring individual employee Google accounts, the endpoint must remain publicly reachable. Administrators should encourage strong ID protection and use this tool alongside appropriate data privacy, consent, and photo retention policies.
-* **Credentials Protection:** Sensitive keys, passwords, or tokens are never exposed in public repository files like `app.js` or `google-sheets-config.js`.
+When you change the Apps Script code, deploy a new version of the web app. If the existing deployment URL is retained, update that deployment to use the new version.
 
-## Camera Requirements
+## Security and privacy limitations
 
-The application requires an active browser camera permission and an HTTPS environment (provided automatically by GitHub Pages) to successfully capture and transmit attendance verification photos.
+Employees sign in using **only their employee ID**, as requested. An ID card number is an identifier, not a secret: anyone who knows or guesses another employee's ID can submit a time entry and selfie for that employee. The employee lookup also returns that employee's default profile picture, so anyone who knows a valid ID can view that picture. The selfie lets an admin review attendance submissions later; it does not authenticate the person taking it or perform face recognition.
+
+The Apps Script endpoint must be publicly reachable for GitHub Pages to call it without employee Google accounts. Employee photo/time submission is therefore not strongly authenticated. Admin data and photo retrieval require the password stored in Apps Script properties and a short-lived server-side session token, but the public endpoint can still be targeted and Apps Script quotas apply. Use strong IDs, protect employee IDs, and do not treat this as tamper-proof payroll or biometric verification. Review employee consent, photo retention, and access obligations before collecting photos.
+
+Never put a Google service-account key, admin password, or other secret in `app.js`, `google-sheets-config.js`, or any public GitHub file. The Apps Script web-app URL itself is not a secret.
+
+## Camera requirements
+
+The webcam requires an HTTPS page (GitHub Pages provides HTTPS) and browser camera permission. Photos are requested for both Time In and Time Out.
